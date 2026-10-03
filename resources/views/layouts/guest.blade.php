@@ -13,12 +13,11 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-            <div>
-                <a href="/" class="font-logo text-4xl tracking-wider text-white">一本グランプリ</a>
-            </div>
+        <div class="curtain"></div>
+        <div class="flex min-h-[calc(100vh-10px)] flex-col items-center px-4 pt-10 sm:justify-center sm:pt-0">
+            <a href="/" class="font-logo text-4xl tracking-wider text-white">どこでも大喜利</a>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-5 mekuri overflow-hidden text-sumi !font-sans">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-6 mekuri overflow-hidden text-sumi !font-sans !font-normal">
                 {{ $slot }}
             </div>
         </div>

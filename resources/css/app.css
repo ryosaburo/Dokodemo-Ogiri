@@ -6,9 +6,9 @@
 
 @theme {
     /* 舞台と寄席のパレット */
-    --color-stage: #161d27;
-    --color-stage-2: #1f2937;
-    --color-stage-3: #2b3646;
+    --color-stage: #17130f;
+    --color-stage-2: #221c16;
+    --color-stage-3: #3a3026;
     --color-paper: #f5f5f2;
     --color-sumi: #141414;
     --color-moegi: #1f8f63;
@@ -25,13 +25,13 @@
 
 body {
     background: var(--color-stage);
-    color: #e8ecf1;
+    color: #efe9df;
 }
 
 /* 定式幕: 黒・柿・萌葱の縦縞。ヘッダー下にだけ使う */
 .curtain {
-    height: 8px;
-    background: repeating-linear-gradient(90deg, #111 0 44px, var(--color-kaki) 44px 88px, var(--color-moegi) 88px 132px);
+    height: 10px;
+    background: repeating-linear-gradient(90deg, #000 0 36px, var(--color-kaki) 36px 72px, var(--color-moegi) 72px 108px);
 }
 
 /* めくり札: 白紙に筆文字。お題と回答の表示に使う */
@@ -86,41 +86,55 @@ body {
 }
 
 .stage-panel {
-    background: var(--color-stage-2);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    border-top: 1px solid rgba(239, 233, 223, 0.22);
+    padding-top: 1.25rem;
 }
 
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    padding: 0.6rem 1.1rem;
+    border-radius: 2px;
+    padding: 0.55rem 1.2rem 0.5rem;
     font-weight: 700;
-    color: #fff;
-    background: var(--color-moegi);
-    transition: background-color 0.15s;
+    color: var(--color-sumi);
+    background: var(--color-paper);
+    border-bottom: 4px solid #b9b3a6;
+    transition: transform 0.1s, border-bottom-width 0.1s;
 }
-.btn:hover { background: var(--color-moegi-dark); }
+.btn:hover { background: #fff; }
+.btn:active { transform: translateY(2px); border-bottom-width: 2px; }
 .btn:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
     outline: 3px solid var(--color-kaki);
     outline-offset: 2px;
 }
-.btn-quiet { background: var(--color-stage-3); }
-.btn-quiet:hover { background: #3a475b; }
-.btn-danger { background: var(--color-enji); }
-.btn-danger:hover { background: #86202f; }
+.btn-quiet { background: transparent; color: var(--color-paper); border: 1px solid rgba(239, 233, 223, 0.45); border-bottom-width: 3px; }
+.btn-quiet:hover { background: rgba(239, 233, 223, 0.1); }
+.btn-danger { background: var(--color-enji); color: #fff; border-bottom-color: #6f1a28; }
+.btn-danger:hover { background: #b93043; }
 
 .field {
     width: 100%;
-    border-radius: 6px;
-    border: 1px solid #3a475b;
-    background: var(--color-stage);
-    color: #e8ecf1;
+    border: 0;
+    border-bottom: 2px solid #6b5f50;
+    border-radius: 0;
+    background: rgba(239, 233, 223, 0.06);
+    color: #efe9df;
     padding: 0.55rem 0.75rem;
 }
-.field::placeholder { color: #7b8899; }
+.field:focus { border-bottom-color: var(--color-kaki); box-shadow: none; }
+.field::placeholder { color: #8f8372; }
+.hint { font-size: 0.8rem; color: #a99d8b; margin-top: 0.25rem; }
+
+/* めくり札の上(白地)で使うフォーム部品: 認証画面・プロフィール */
+.mekuri .field, .field-paper {
+    background: #fff;
+    color: var(--color-sumi);
+    border-bottom-color: var(--color-sumi);
+}
+.mekuri .btn { background: var(--color-sumi); color: var(--color-paper); border-bottom-color: #000; }
+.mekuri .btn:hover { background: #2a2a2a; }
+.mekuri .btn-danger { background: var(--color-enji); }
 
 /* 残り時間バー */
 .timebar { height: 6px; background: var(--color-stage-3); border-radius: 3px; overflow: hidden; }

@@ -88,6 +88,12 @@ function render() {
     if (isHost) html += renderHost(round, room);
     if (round?.results) html += renderResults(round);
 
+    if (room.status === 'finished') {
+        // 開発用の ?as= を引き継いで、同じユーザーのままトップへ戻る
+        const home = devUser ? `/?as=${encodeURIComponent(devUser)}` : '/';
+        html += `<div class="mt-8 text-center"><a href="${home}" class="btn">トップに戻る</a></div>`;
+    }
+
     const draft = document.getElementById('answer-body')?.value;
     root.innerHTML = html;
     const box = document.getElementById('answer-body');
@@ -138,7 +144,7 @@ function renderRound(round, me, room) {
             h += `<div class="mekuri ${flip ? 'mekuri-flip' : ''} mb-4 px-6 py-8 text-center text-3xl leading-snug sm:text-5xl">${esc(current.body)}</div>`;
         }
         if (past.length) {
-            h += `<ol class="mb-4 space-y-2">${past.map((a) => `<li class="flex items-baseline justify-between gap-3 rounded bg-stage-2 px-4 py-3">
+            h += `<ol class="mb-4 space-y-2">${past.map((a) => `<li class="flex items-baseline justify-between gap-3 border-l-4 border-stage-3 bg-stage-2 px-4 py-3">
                 <span class="text-lg font-bold leading-snug ${current ? 'text-stone-300' : 'text-white'}">${esc(a.body)}</span>
                 <span class="shrink-0 text-right text-xs text-stone-400">${a.name ? esc(a.name) : ''}${a.votes ? ` 面白い${a.votes.funny}/微妙${a.votes.meh}` : ''}</span></li>`).join('')}</ol>`;
         }
@@ -169,7 +175,7 @@ function renderHost(round, room) {
                 </div>
                 ${candidatesError ? `<p class="mb-2 text-sm text-kaki">${esc(candidatesError)}</p>` : ''}
                 ${candidates ? `<ul class="grid gap-2">${candidates.map((c, i) => `
-                    <li><button data-candidate="${i}" class="w-full rounded border px-4 py-3 text-left text-lg leading-snug ${odaiDraft.source === c.url ? 'border-moegi bg-moegi/20' : 'border-stage-3 bg-stage hover:bg-stage-3'}">${esc(c.title)}</button></li>`).join('')}</ul>` : ''}
+                    <li><button data-candidate="${i}" class="w-full border px-4 py-3 text-left text-lg leading-snug ${odaiDraft.source === c.url ? 'border-moegi bg-moegi/20' : 'border-stage-3 bg-stage hover:bg-stage-2'}">${esc(c.title)}</button></li>`).join('')}</ul>` : ''}
             </div>
             <input id="odai-title" value="${esc(odaiDraft.title)}" placeholder="候補を選ぶか、お題を直接入力" class="field text-lg">
             <div class="flex flex-wrap items-center gap-3"><label class="text-sm">制限時間(秒)
