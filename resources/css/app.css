@@ -1,0 +1,130 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    /* 舞台と寄席のパレット */
+    --color-stage: #161d27;
+    --color-stage-2: #1f2937;
+    --color-stage-3: #2b3646;
+    --color-paper: #f5f5f2;
+    --color-sumi: #141414;
+    --color-moegi: #1f8f63;
+    --color-moegi-dark: #17724f;
+    --color-kaki: #d8802c;
+    --color-enji: #a3283a;
+
+    /* お題・回答・順位: 太く字形がはっきりした明朝。長文でも読みやすい */
+    --font-brush: 'Kaisei Decol', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+    /* ロゴ・印: 筆書き風。短い文字にだけ使う */
+    --font-logo: 'Yuji Boku', 'Kaisei Decol', serif;
+    --font-sans: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+    background: var(--color-stage);
+    color: #e8ecf1;
+}
+
+/* 定式幕: 黒・柿・萌葱の縦縞。ヘッダー下にだけ使う */
+.curtain {
+    height: 8px;
+    background: repeating-linear-gradient(90deg, #111 0 44px, var(--color-kaki) 44px 88px, var(--color-moegi) 88px 132px);
+}
+
+/* めくり札: 白紙に筆文字。お題と回答の表示に使う */
+.mekuri {
+    background: var(--color-paper);
+    color: var(--color-sumi);
+    font-family: var(--font-brush);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border-top: 10px solid var(--color-sumi);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35);
+}
+.mekuri-flip {
+    transform-origin: top center;
+    animation: mekuri-flip 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes mekuri-flip {
+    0% { transform: rotateX(-95deg); opacity: 0; }
+    60% { transform: rotateX(12deg); opacity: 1; }
+    100% { transform: rotateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .mekuri-flip { animation: none; }
+}
+
+/* 名札 */
+.nameplate {
+    background: var(--color-paper);
+    color: var(--color-sumi);
+    border-left: 5px solid var(--color-stage-3);
+    border-radius: 2px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+.nameplate[data-role='host'] { border-left-color: var(--color-kaki); }
+.nameplate[data-role='performer'] { border-left-color: var(--color-moegi); }
+.nameplate[data-role='judge'] { border-left-color: #6b7c93; }
+.nameplate[data-out='true'] { opacity: 0.4; text-decoration: line-through; }
+
+/* 優勝印 */
+.seal {
+    display: inline-block;
+    color: var(--color-enji);
+    border: 3px solid var(--color-enji);
+    border-radius: 6px;
+    padding: 0.1rem 0.6rem;
+    font-family: var(--font-logo);
+    font-size: 1.5rem;
+    transform: rotate(-6deg);
+}
+
+.stage-panel {
+    background: var(--color-stage-2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    padding: 0.6rem 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--color-moegi);
+    transition: background-color 0.15s;
+}
+.btn:hover { background: var(--color-moegi-dark); }
+.btn:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 3px solid var(--color-kaki);
+    outline-offset: 2px;
+}
+.btn-quiet { background: var(--color-stage-3); }
+.btn-quiet:hover { background: #3a475b; }
+.btn-danger { background: var(--color-enji); }
+.btn-danger:hover { background: #86202f; }
+
+.field {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #3a475b;
+    background: var(--color-stage);
+    color: #e8ecf1;
+    padding: 0.55rem 0.75rem;
+}
+.field::placeholder { color: #7b8899; }
+
+/* 残り時間バー */
+.timebar { height: 6px; background: var(--color-stage-3); border-radius: 3px; overflow: hidden; }
+.timebar > i { display: block; height: 100%; background: var(--color-moegi); transition: width 0.5s linear; }
+.timebar[data-low='true'] > i { background: var(--color-enji); }
+
+.font-logo { font-family: var(--font-logo); }
