@@ -142,3 +142,5 @@ body {
 .timebar[data-low='true'] > i { background: var(--color-enji); }
 
 .font-logo { font-family: var(--font-logo); }
+
+[x-cloak] { display: none !important; }
