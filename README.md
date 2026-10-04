@@ -1,58 +1,78 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# どこでも大喜利
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+お題に一言で答えて、いちばん笑わせた人が残る、サバイバル形式の大喜利アプリです。
+司会者がルームを作り、演者が同じお題に回答をぶつけ合い、ラウンドごとに最下位が脱落します。
+演者が1人になるか、決めたラウンド数に達したら、大会終了です。
 
-## About Laravel
+## 遊び方
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. 司会者が「司会者として始める」でルームを作る(審査の方法、演者の人数、ラウンド数を選ぶ)。
+2. 演者は「演者として参加する」で、招待コードを入れて入室する。演者の定員が埋まったあとに入った人は、審査員になる。
+3. 司会者がお題を出す。演者は、制限時間内に一言で回答する。締切まで、他の人の回答は見えない。
+4. 回答は、ランダムな順に1件ずつ公開される。
+5. 全部の回答を公開したら、結果を発表する。最下位の演者が脱落する。
+6. 演者が1人になるまで、3〜5を繰り返す。
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 審査の方法(ルーム作成時に選ぶ。大会中は変えない)
+| 方法 | 仕組み |
+|---|---|
+| 投票 | 審査員が、回答ごとに「面白い」「微妙」を投票する。スコアは、面白い票から微妙な票を引いた数。 |
+| 会場の笑い声 | 司会者のマイクで、回答の公開中の音量を測る。ラウンド内で最大の音量を100点として、他の回答を比率で換算する。 |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 技術スタック
 
-## Learning Laravel
+| 項目 | 使用技術 |
+|---|---|
+| バックエンド | Laravel 13(PHP) |
+| データベース | PostgreSQL |
+| リアルタイム通信 | Laravel Reverb + Laravel Echo(WebSocket) |
+| フロントエンド | Blade、Tailwind CSS 4、Alpine.js、素の JavaScript(ルーム画面) |
+| 笑い声の検出 | Web Audio API(`AnalyserNode`) |
+| 開発環境 | Docker(Laravel Sail) |
+| 本番環境 | Laravel Cloud(アプリ・DB・WebSocket をシンガポールにそろえている) |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 工夫した点
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **回答を1件ずつ公開する。** 一斉に公開すると、笑い声がどの回答への反応か分からなくなる。1件ずつ公開して、公開中の音量を、その回答の得点にしている。
+- **審査の方法を差し替えられる設計にした。** 投票と笑い声の2つの採点を `JudgingStrategy` に分け、`RoundService` が、ルームの設定に合わせて切り替える。結果は、共通の `round_results` に保存する。
+- **笑い声の検出で、会場の環境音を差し引く。** 最初の2秒で、静かな状態の音量を測り、その平均を以降の音量から引く。エアコンや話し声で、得点が偏るのを減らすため。
+- **後出しを防ぐ。** 回答の送信は、演者本人だけが購読できるチャンネルで通知する。締切まで、他人の回答は、画面にもデータにも出ない。
+- **回答の公開は、演者が自分で押す。** 自分の番になったら、公開ボタンが出る。前の回答への反応が落ち着いてから、公開できる。
+- **同点や、誰も回答しなかったときのルールを決めた。** 全員が同点なら、脱落者なし。最下位が複数なら、全員が脱落。回答しなかった演者は、脱落になる。テスト(`EliminationRulesTest`)で確認している。
+- **WebSocket が切れても動く。** 10秒ごとに、状態を取り直すフォールバックを入れている。
+- **世界観を統一した。** 寄席の「めくり札」「定式幕」をモチーフにして、お題と回答は、めくり札のように表示する。ログインやプロフィールの画面も、同じ見た目にそろえた。
+- **開発用の切り替え機能を作った。** URL に `?as=ID` を付けると、そのタブだけ、指定したユーザーとして動く。1人で、司会者と演者の両方を試せる。`APP_ENV=local` のときしか動かない。
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 苦労した点
 
-## Agentic Development
+- **Docker の中と外で、Reverb の接続先が違う。** ブラウザは `localhost` に接続するが、PHP のコンテナからは、コンテナ名(`reverb`)に送る必要がある。サーバー用とブラウザ用で、環境変数を分けて解決した。
+- **再描画で、入力中の文字が消える。** WebSocket の通知のたびに、画面を描き直すので、回答を書いている途中で内容が消えた。入力中は、再描画しないようにして、下書きを保持した。
+- **笑い声の計測を、回答と対応づける。** 回答が切り替わる瞬間に、直前の回答の音量を確定して送る必要がある。公開の順番と、音量の合計が、ずれないようにした。
+- **開発中に、複数のユーザーを同時に操作する。** セッションを使わない切り替えの仕組みを作って、1つのブラウザの複数のタブで、別々のユーザーとして動かせるようにした。
+- **本番では、`APP_ENV` の設定が重要だった。** 開発用の切り替え機能が `local` でしか動かないことを、デプロイ後に実際に確かめた。
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## ローカルでの動かし方
 
-```bash
-composer require laravel/boost --dev
+Docker が必要。
 
-php artisan boost:install
+```sh
+cp .env.example .env
+docker compose up -d
+docker compose exec laravel.test composer install
+docker compose exec laravel.test php artisan key:generate
+docker compose exec laravel.test php artisan migrate
+docker compose exec laravel.test npm install
+docker compose exec laravel.test npm run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+http://localhost を開く。テストは、次で実行する。
 
-## Contributing
+```sh
+docker compose exec laravel.test php artisan test
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+> `.env.example` は、最低限の項目だけを書いている。PostgreSQL と Reverb の接続先は、`.env` に合わせて設定する(本番用の一覧は `.env.production.example`)。
 
-## Code of Conduct
+## お題について
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+お題は、司会者が手で入力するか、外部サイト「大喜利掲示板」の一覧から取り込んだ候補を選ぶ。取り込んだお題には、出典のリンクを表示する。
